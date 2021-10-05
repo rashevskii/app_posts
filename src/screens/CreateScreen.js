@@ -1,35 +1,40 @@
-import React, { useState } from "react";
-import { 
-  View, 
-  Text, 
-  StyleSheet, 
-  TextInput, 
-  Image, 
-  Button, 
-  ScrollView, 
-  TouchableWithoutFeedback, 
-  Keyboard 
+import React, { useRef, useState } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TextInput,
+  Image,
+  Button,
+  ScrollView,
+  TouchableWithoutFeedback,
+  Keyboard
 } from 'react-native';
 import { HeaderButtons, Item } from "react-navigation-header-buttons";
 import { useDispatch } from "react-redux";
 import { AppHeaderIcon } from "../components/AppHeaderIcon";
+import { PhotoPicker } from "../components/PhotoPicker";
 import { addPost } from "../store/actions/post";
 import { THEME } from "../theme";
 
-export const CreateScreen = ({navigation}) => {
+export const CreateScreen = ({ navigation }) => {
   const dispatch = useDispatch();
   const [text, setText] = useState('');
-  const img = 'https://traveller-eu.ru/sites/default/files/styles/index/public/42-74723835-800x450.jpg?itok=TS77HGGo';
+  const imgRef = useRef();
   const saveHandler = () => {
     const post = {
       date: new Date().toJSON(),
       text: text,
-      img: img,
+      img: imgRef.current,
       booked: false,
     }
     dispatch(addPost(post));
     navigation.navigate('Main');
   }
+
+  const photoPickHandler = (uri) => {
+    imgRef.current = uri;
+  };
 
   return (
     <ScrollView>
@@ -43,11 +48,13 @@ export const CreateScreen = ({navigation}) => {
             onChangeText={setText}
             multiline
           />
-          <Image
-            style={{ width: '100%', height: 200, marginBottom: 10 }}
-            source={{ uri: img }}
+          <PhotoPicker onPick={photoPickHandler} />
+          <Button
+            title='Создать пост'
+            color={THEME.MAIN_COLOR}
+            onPress={saveHandler}
+            disabled={!text}
           />
-          <Button title='Создать пост' color={THEME.MAIN_COLOR} onPress={saveHandler} />
         </View>
       </TouchableWithoutFeedback>
     </ScrollView>
